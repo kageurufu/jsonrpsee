@@ -403,10 +403,15 @@ impl RpcDescription {
 	/// Based on the namespace, renders the full name of the RPC method/subscription.
 	/// Examples:
 	/// For namespace `foo` and method `makeSpam`, result will be `foo_makeSpam`.
+	/// For namespace `foo.` and method `makeSpace`, result will be `foo.makeSpam`.
 	/// For no namespace and method `makeSpam` it will be just `makeSpam`.
 	pub(crate) fn rpc_identifier<'a>(&self, method: &'a str) -> Cow<'a, str> {
 		if let Some(ns) = &self.namespace {
-			format!("{ns}_{method}").into()
+			if ns.ends_with(char::is_alphanumeric) {
+				format!("{ns}_{method}").into()
+			} else {
+				format!("{ns}{method}").into()
+			}
 		} else {
 			Cow::Borrowed(method)
 		}
